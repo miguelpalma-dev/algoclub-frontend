@@ -1,5 +1,4 @@
 import { useWallet } from '@txnlab/use-wallet-react'
-import Account from './Account'
 
 interface ConnectWalletInterface {
   openModal: boolean
@@ -7,9 +6,18 @@ interface ConnectWalletInterface {
 }
 
 const ConnectWallet = ({ openModal, closeModal }: ConnectWalletInterface) => {
-  const { wallets, activeAddress } = useWallet()
+  const { wallets, activeAddress, activeWallet, disconnect } = useWallet()
 
   if (!openModal) return null
+
+  const handleDisconnect = async () => {
+    try {
+      await disconnect()
+      closeModal()
+    } catch (err) {
+      console.error('Error desconectando:', err)
+    }
+  }
 
   return (
     <div
@@ -33,8 +41,24 @@ const ConnectWallet = ({ openModal, closeModal }: ConnectWalletInterface) => {
         </div>
 
         {activeAddress && (
-          <div className="mt-6 rounded-xl border border-white/10 bg-white/5 p-4">
-            <Account />
+          <div className="mt-6 space-y-4">
+            <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+              <p className="text-xs uppercase tracking-widest text-white/40">Wallet conectada</p>
+              <p className="mt-2 font-mono text-sm text-white break-all">{activeAddress}</p>
+              {activeWallet && (
+                <p className="mt-2 text-xs text-white/50">
+                  {activeWallet.metadata.name} · MainNet
+                </p>
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={handleDisconnect}
+              className="w-full rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-400 transition-colors hover:border-red-500 hover:bg-red-500/20 hover:text-red-300"
+            >
+              Desconectar Wallet
+            </button>
           </div>
         )}
 
