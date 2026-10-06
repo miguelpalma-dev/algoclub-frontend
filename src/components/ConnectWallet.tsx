@@ -52,6 +52,15 @@ const ConnectWallet = ({ openModal, closeModal }: ConnectWalletInterface) => {
               )}
             </div>
 
+            <a
+              href={`https://lora.algokit.io/mainnet/account/${activeAddress}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block w-full rounded-xl border border-[#FF6B1A]/40 bg-[#FF6B1A]/10 px-4 py-3 text-center text-sm font-semibold text-[#FF6B1A] transition-colors hover:border-[#FF6B1A] hover:bg-[#FF6B1A]/20"
+            >
+              Ver cuenta en Lora ↗
+            </a>
+
             <button
               type="button"
               onClick={handleDisconnect}
