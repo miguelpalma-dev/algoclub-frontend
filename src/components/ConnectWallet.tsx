@@ -6,16 +6,18 @@ interface ConnectWalletInterface {
 }
 
 const ConnectWallet = ({ openModal, closeModal }: ConnectWalletInterface) => {
-  const { wallets, activeAddress, activeWallet, disconnect } = useWallet()
+  const { wallets, activeAddress, activeWallet } = useWallet()
 
   if (!openModal) return null
 
   const handleDisconnect = async () => {
-    try {
-      await disconnect()
-      closeModal()
-    } catch (err) {
-      console.error('Error desconectando:', err)
+    if (activeWallet) {
+      try {
+        await activeWallet.disconnect()
+        closeModal()
+      } catch (err) {
+        console.error('Error desconectando:', err)
+      }
     }
   }
 
