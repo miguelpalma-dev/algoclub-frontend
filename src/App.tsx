@@ -72,7 +72,6 @@ function Logo() {
     </a>
   );
 }
-}
 
 type WalletProps = {
   onConnectWallet: () => void;
