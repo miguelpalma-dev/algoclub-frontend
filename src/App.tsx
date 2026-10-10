@@ -20,10 +20,12 @@ const SOCIAL_LINKS = [
   { label: "GitHub", href: "https://github.com" },
 ];
 
+
 const NAV_LINKS = [
   { label: "Tokenomics", href: "#tokenomics" },
   { label: "Transparencia", href: "#transparencia" },
   { label: "Comunidad", href: "#comunidad" },
+  { label: "White Paper", href: "/whitepaper.pdf" },
 ];
 
 export default function App() {
@@ -209,9 +211,8 @@ function Tokenomics() {
                     {row.label}
                   </th>
                   <td
-                    className={`px-6 py-5 text-right text-base font-semibold ${
-                      row.mono ? "font-mono" : ""
-                    } ${row.highlight ? "text-[#FF6B1A]" : "text-white"}`}
+                    className={`px-6 py-5 text-right text-base font-semibold ${row.mono ? "font-mono" : ""
+                      } ${row.highlight ? "text-[#FF6B1A]" : "text-white"}`}
                   >
                     {row.value}
                   </td>
