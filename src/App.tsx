@@ -58,18 +58,20 @@ function shortAddress(address: string) {
     ? `${address.slice(0, 6)}…${address.slice(-4)}`
     : address;
 }
-
 function Logo() {
   return (
     <a href="#" className="flex items-center gap-2.5" aria-label="QUEES Algo Club, inicio">
-      <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#FF6B1A] text-sm font-black text-[#06102B]">
-        Q
-      </span>
+      <img
+        src="/logo-quees.png"
+        alt="QUEES Algo Club"
+        className="h-10 w-10 rounded-lg"
+      />
       <span className="text-sm font-semibold tracking-tight">
         QUEES <span className="text-white/50">Algo Club</span>
       </span>
     </a>
   );
+}
 }
 
 type WalletProps = {
