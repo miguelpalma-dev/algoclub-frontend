@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useWallet } from "@txnlab/use-wallet-react";
 import ConnectWallet from "./components/ConnectWallet";
-
+import PriceWidget from './components/PriceWidget'
 const TOKEN = {
   name: "QueEsAlgo",
   symbol: "QUEES",
@@ -41,6 +41,7 @@ export default function App() {
       <Navbar onConnectWallet={handleConnectWallet} walletAddress={activeAddress} />
       <main>
         <Hero onConnectWallet={handleConnectWallet} walletAddress={activeAddress} />
+        <PriceWidget />
         <Tokenomics />
         <Transparency />
       </main>
