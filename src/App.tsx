@@ -14,10 +14,9 @@ const TOKEN = {
 const TREASURY_ADDRESS = "algoclub.algo";
 
 const SOCIAL_LINKS = [
-  { label: "X / Twitter", href: "https://x.com" },
-  { label: "Telegram", href: "https://t.me" },
-  { label: "Discord", href: "https://discord.com" },
-  { label: "GitHub", href: "https://github.com" },
+  { label: "X / Twitter", href: "https://x.com/QUEESAlgoClubGT" },
+  { label: "Telegram", href: "https://t.me/algoclubgt" },
+  { label: "GitHub", href: "https://github.com/miguelpalma-dev/algoclub-frontend" },
 ];
 
 
@@ -92,6 +91,16 @@ function Navbar({ onConnectWallet, walletAddress }: WalletProps) {
               </a>
             </li>
           ))}
+          <li>
+            <a href="https://t.me/algoclubgt" target="_blank" rel="noopener noreferrer" className="text-sm text-white/60 transition-colors hover:text-[#FF6B1A]">
+              Telegram
+            </a>
+          </li>
+          <li>
+            <a href="https://x.com/QUEESAlgoClubGT" target="_blank" rel="noopener noreferrer" className="text-sm text-white/60 transition-colors hover:text-[#FF6B1A]">
+              X (Twitter)
+            </a>
+          </li>
         </ul>
         <div className="flex items-center gap-2">
           <a
@@ -154,6 +163,14 @@ function Hero({ onConnectWallet, walletAddress }: WalletProps) {
             className="rounded-full px-6 py-5 text-base font-medium text-white/70 transition-colors hover:text-white"
           >
             Ver tokenomics →
+          </a>
+          <a
+            href="https://tally.so/r/dbqpqK"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-full border border-white/20 px-6 py-5 text-base font-medium text-white transition-colors hover:border-[#FF6B1A] hover:text-[#FF6B1A]"
+          >
+            ¡Toma el Quiz y Gana QUEES!
           </a>
         </div>
         <dl className="mt-20 grid w-full max-w-3xl grid-cols-3 divide-x divide-white/10 rounded-2xl border border-white/10 bg-white/[0.03]">

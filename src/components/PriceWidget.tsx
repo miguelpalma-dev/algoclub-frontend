@@ -105,6 +105,17 @@ const PriceWidget = () => {
                         </p>
                     </div>
                 </div>
+                <div className="mt-10 flex justify-center">
+                    <a
+                        href="https://app.tinyman.org/#/swap?asset_in=0&asset_out=3730071622"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group inline-flex items-center gap-2 rounded-full bg-[#FF6B1A] px-8 py-4 text-sm font-semibold text-[#06102B] transition-colors hover:bg-[#FF8240]"
+                    >
+                        Comprar QUEES en Tinyman
+                        <span className="transition-transform group-hover:translate-x-1">↗</span>
+                    </a>
+                </div>
             </div>
         </section>
     )
