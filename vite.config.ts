@@ -1,15 +1,17 @@
-import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
-import { nodePolyfills } from 'vite-plugin-node-polyfills'
+import react from '@vitejs/plugin-react'
 
-// https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-    react(),
-    nodePolyfills({
-      globals: {
-        Buffer: true,
+  plugins: [react()],
+  server: {
+    proxy: {
+      // Cuando tu app pida '/api/vestige', Vite lo redirigirá a 'https://api.vestige.fi'
+      '/api/vestige': {
+        target: 'https://api.vestige.fi',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/api\/vestige/, ''),
       },
-    }),
-  ],
+    },
+  },
 })

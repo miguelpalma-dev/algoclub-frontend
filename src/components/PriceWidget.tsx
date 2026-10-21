@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 
-// Definimos la estructura de los precios
 interface PriceData {
     algo: { usd: number };
     xalgo: { usd: number };
@@ -8,7 +7,6 @@ interface PriceData {
 }
 
 const PriceWidget = () => {
-    // Estado inicial (con valores de respaldo para que no se vea vacío al cargar)
     const [prices, setPrices] = useState<PriceData>({
         algo: { usd: 0.1145 },
         xalgo: { usd: 0.1260 },
@@ -17,44 +15,43 @@ const PriceWidget = () => {
 
     const [isLoading, setIsLoading] = useState(true);
 
-    // Función que consulta la API de Tinyman/Vestige
     const fetchPrices = async () => {
         try {
-            // 1. Consultamos el precio de QUEES (ID: 3730071622) y ALGO (ID: 0)
-            // Usamos la API pública de Vestige que es rápida y no requiere API Key para consultas básicas
-            const [queesRes, algoRes] = await Promise.all([
-                fetch('https://api.vestigelabs.org/assets/3730071622'),
-                fetch('https://api.vestigelabs.org/assets/0')
+            const [queesRes, algoRes, xalgoRes] = await Promise.all([
+                fetch('https://mainnet.analytics.tinyman.org/api/v1/assets/3730071622'),
+                fetch('https://mainnet.analytics.tinyman.org/api/v1/assets/0'),
+                fetch('https://mainnet.analytics.tinyman.org/api/v1/assets/1134696561')
             ]);
 
             const queesData = await queesRes.json();
             const algoData = await algoRes.json();
+            const xalgoData = await xalgoRes.json();
 
-            // 2. Actualizamos el estado con los datos reales
+            // 🔥 LA SOLUCIÓN ESTÁ AQUÍ: Convertimos a Number() para evitar el error de toFixed
+            const algoUSD = Number(algoData.price_in_usd) || 0.1145;
+            const xalgoUSD = Number(xalgoData.price_in_usd) || 0.1260;
+            const queesUSD = Number(queesData.price_in_usd) || 0.000387;
+
+            const queesALGO = queesUSD / algoUSD;
+
             setPrices({
-                algo: { usd: algoData.usd_price || 0.1145 },
-                xalgo: { usd: algoData.usd_price * 1.1 || 0.1260 }, // Aproximación si no hay API directa de xALGO
+                algo: { usd: algoUSD },
+                xalgo: { usd: xalgoUSD },
                 quees: {
-                    usd: queesData.usd_price || 0.000387,
-                    algo: queesData.algo_price || 0.003377
+                    usd: queesUSD,
+                    algo: queesALGO
                 }
             });
-            setIsLoading(false);
         } catch (error) {
             console.error("Error al obtener los precios:", error);
-            // Si falla, mantenemos los precios anteriores en pantalla
+        } finally {
+            setIsLoading(false);
         }
     };
 
-    // El useEffect se encarga de ejecutar la función al inicio y luego cada 60 segundos
     useEffect(() => {
-        fetchPrices(); // Primera llamada al montar el componente
-
-        const intervalId = setInterval(() => {
-            fetchPrices(); // Llamadas posteriores
-        }, 60000); // 60,000 milisegundos = 1 minuto
-
-        // Limpiamos el intervalo cuando el componente se desmonta (buena práctica)
+        fetchPrices();
+        const intervalId = setInterval(fetchPrices, 60000); // 60 segundos
         return () => clearInterval(intervalId);
     }, []);
 
@@ -65,7 +62,6 @@ const PriceWidget = () => {
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-
                 {/* Tarjeta ALGO */}
                 <div className="rounded-2xl border border-white/10 bg-[#0F1423]/50 p-6 text-center">
                     <div className="flex items-center justify-center gap-3 mb-3">
@@ -103,10 +99,8 @@ const PriceWidget = () => {
                         {prices.quees.algo.toFixed(6)} ALGO
                     </p>
                 </div>
-
             </div>
 
-            {/* Botón Tinyman */}
             <div className="mt-10 flex justify-center">
                 <a
                     href="https://app.tinyman.org/#/swap?asset_in=0&asset_out=3730071622"

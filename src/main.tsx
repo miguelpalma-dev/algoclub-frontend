@@ -5,6 +5,9 @@ import './styles/App.css'
 import ErrorBoundary from './components/ErrorBoundary'
 import { WalletManager, WalletId, NetworkId } from '@txnlab/use-wallet'
 import { WalletProvider } from '@txnlab/use-wallet-react'
+import { AlgorandClient } from '@algorandfoundation/algokit-utils'
+
+const algorand = AlgorandClient.mainNet()
 
 const walletManager = new WalletManager({
   wallets: [
