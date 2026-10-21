@@ -1,124 +1,125 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react';
 
+// Definimos la estructura de los precios
 interface PriceData {
-    algo: { usd: number } | null
-    xalgo: { usd: number } | null
-    quees: { algo: number; usd: number } | null
+    algo: { usd: number };
+    xalgo: { usd: number };
+    quees: { usd: number; algo: number };
 }
 
 const PriceWidget = () => {
+    // Estado inicial (con valores de respaldo para que no se vea vacío al cargar)
     const [prices, setPrices] = useState<PriceData>({
-        algo: null,
-        xalgo: null,
-        quees: null,
-    })
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState<string | null>(null)
+        algo: { usd: 0.1145 },
+        xalgo: { usd: 0.1260 },
+        quees: { usd: 0.000387, algo: 0.003377 }
+    });
 
-    useEffect(() => {
-        const fetchPrices = async () => {
-            try {
-                // ALGO desde Binance (CORS friendly)
-                const res = await fetch(
-                    'https://api.binance.com/api/v3/ticker/price?symbol=ALGOUSDT'
-                )
-                const data = await res.json()
-                const algoPrice = parseFloat(data.price) || 0
+    const [isLoading, setIsLoading] = useState(true);
 
-                // xALGO: 1 xALGO ≈ 1.10 ALGO (rewards acumulados)
-                const xalgoPrice = algoPrice * 1.1
+    // Función que consulta la API de Tinyman/Vestige
+    const fetchPrices = async () => {
+        try {
+            // 1. Consultamos el precio de QUEES (ID: 3730071622) y ALGO (ID: 0)
+            // Usamos la API pública de Vestige que es rápida y no requiere API Key para consultas básicas
+            const [queesRes, algoRes] = await Promise.all([
+                fetch('https://api.vestigelabs.org/assets/3730071622'),
+                fetch('https://api.vestigelabs.org/assets/0')
+            ]);
 
-                // QUEES: precio actual del pool (0.003377 ALGO por QUEES)
-                // Cuando el pool madure, actualizar este valor periódicamente
-                const queesPriceInAlgo = 0.003377
-                const queesPriceInUsd = queesPriceInAlgo * algoPrice
+            const queesData = await queesRes.json();
+            const algoData = await algoRes.json();
 
-                setPrices({
-                    algo: { usd: algoPrice },
-                    xalgo: { usd: xalgoPrice },
-                    quees: { algo: queesPriceInAlgo, usd: queesPriceInUsd },
-                })
-            } catch (err) {
-                console.error('Error fetching prices:', err)
-                setError('No se pudieron cargar los precios en vivo.')
-            } finally {
-                setLoading(false)
-            }
+            // 2. Actualizamos el estado con los datos reales
+            setPrices({
+                algo: { usd: algoData.usd_price || 0.1145 },
+                xalgo: { usd: algoData.usd_price * 1.1 || 0.1260 }, // Aproximación si no hay API directa de xALGO
+                quees: {
+                    usd: queesData.usd_price || 0.000387,
+                    algo: queesData.algo_price || 0.003377
+                }
+            });
+            setIsLoading(false);
+        } catch (error) {
+            console.error("Error al obtener los precios:", error);
+            // Si falla, mantenemos los precios anteriores en pantalla
         }
+    };
 
-        fetchPrices()
-        const interval = setInterval(fetchPrices, 60000)
-        return () => clearInterval(interval)
-    }, [])
+    // El useEffect se encarga de ejecutar la función al inicio y luego cada 60 segundos
+    useEffect(() => {
+        fetchPrices(); // Primera llamada al montar el componente
 
-    if (loading) {
-        return (
-            <div className="text-center py-12 text-white/60 animate-pulse">
-                Cargando precios de mercado...
-            </div>
-        )
-    }
+        const intervalId = setInterval(() => {
+            fetchPrices(); // Llamadas posteriores
+        }, 60000); // 60,000 milisegundos = 1 minuto
 
-    if (error) {
-        return <div className="text-center py-12 text-red-400">{error}</div>
-    }
+        // Limpiamos el intervalo cuando el componente se desmonta (buena práctica)
+        return () => clearInterval(intervalId);
+    }, []);
 
     return (
-        <section className="py-12 border-t border-white/5 bg-[#06102B]/50">
-            <div className="mx-auto max-w-6xl px-6">
-                <h2 className="text-center text-sm font-semibold uppercase tracking-widest text-white/40 mb-8">
-                    Precios de Mercado en Vivo
-                </h2>
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center">
-                        <div className="flex items-center justify-center gap-3 mb-3">
-                            <span className="text-2xl">⚡</span>
-                            <h3 className="text-lg font-bold text-white">ALGO</h3>
-                        </div>
-                        <p className="text-3xl font-mono font-bold text-[#FF6B1A]">
-                            ${prices.algo?.usd.toFixed(4)}
-                        </p>
-                        <p className="text-xs text-white/40 mt-2">Algorand</p>
-                    </div>
+        <section className="py-20 px-4 max-w-6xl mx-auto">
+            <h2 className="text-center text-sm font-bold text-gray-400 tracking-widest uppercase mb-10">
+                Precios de Mercado en Vivo {isLoading && "(Actualizando...)"}
+            </h2>
 
-                    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center">
-                        <div className="flex items-center justify-center gap-3 mb-3">
-                            <span className="text-2xl">🌿</span>
-                            <h3 className="text-lg font-bold text-white">xALGO</h3>
-                        </div>
-                        <p className="text-3xl font-mono font-bold text-[#00A86B]">
-                            ${prices.xalgo?.usd.toFixed(4)}
-                        </p>
-                        <p className="text-xs text-white/40 mt-2">Folks Finance</p>
-                    </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
 
-                    <div className="rounded-2xl border border-[#FF6B1A]/30 bg-[#FF6B1A]/5 p-6 text-center">
-                        <div className="flex items-center justify-center gap-3 mb-3">
-                            <img src="/logo-quees.svg" alt="QUEES" className="h-8 w-8" />
-                            <h3 className="text-lg font-bold text-white">QUEES</h3>
-                        </div>
-                        <p className="text-3xl font-mono font-bold text-[#FF6B1A]">
-                            ${prices.quees?.usd.toFixed(6)}
-                        </p>
-                        <p className="text-xs text-white/40 mt-2">
-                            {prices.quees?.algo.toFixed(6)} ALGO
-                        </p>
+                {/* Tarjeta ALGO */}
+                <div className="rounded-2xl border border-white/10 bg-[#0F1423]/50 p-6 text-center">
+                    <div className="flex items-center justify-center gap-3 mb-3">
+                        <span className="text-2xl">⚡</span>
+                        <h3 className="text-lg font-bold text-white">ALGO</h3>
                     </div>
+                    <p className="text-3xl font-mono font-bold text-[#FF6B1A]">
+                        ${prices.algo.usd.toFixed(4)}
+                    </p>
+                    <p className="text-xs text-white/40 mt-2">Algorand</p>
                 </div>
-                <div className="mt-10 flex justify-center">
-                    <a
-                        href="https://app.tinyman.org/#/swap?asset_in=0&asset_out=3730071622"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group inline-flex items-center gap-2 rounded-full bg-[#FF6B1A] px-8 py-4 text-sm font-semibold text-[#06102B] transition-colors hover:bg-[#FF8240]"
-                    >
-                        Comprar QUEES en Tinyman
-                        <span className="transition-transform group-hover:translate-x-1">↗</span>
-                    </a>
+
+                {/* Tarjeta xALGO */}
+                <div className="rounded-2xl border border-white/10 bg-[#0F1423]/50 p-6 text-center">
+                    <div className="flex items-center justify-center gap-3 mb-3">
+                        <span className="text-2xl">🌿</span>
+                        <h3 className="text-lg font-bold text-white">xALGO</h3>
+                    </div>
+                    <p className="text-3xl font-mono font-bold text-[#00A86B]">
+                        ${prices.xalgo.usd.toFixed(4)}
+                    </p>
+                    <p className="text-xs text-white/40 mt-2">Folks Finance</p>
                 </div>
+
+                {/* Tarjeta QUEES */}
+                <div className="rounded-2xl border border-[#FF6B1A]/30 bg-[#FF6B1A]/5 p-6 text-center">
+                    <div className="flex items-center justify-center gap-3 mb-3">
+                        <img src="/logo-quees.svg" alt="QUEES" className="h-8 w-8" />
+                        <h3 className="text-lg font-bold text-white">QUEES</h3>
+                    </div>
+                    <p className="text-3xl font-mono font-bold text-[#FF6B1A]">
+                        ${prices.quees.usd.toFixed(6)}
+                    </p>
+                    <p className="text-xs text-white/40 mt-2">
+                        {prices.quees.algo.toFixed(6)} ALGO
+                    </p>
+                </div>
+
+            </div>
+
+            {/* Botón Tinyman */}
+            <div className="mt-10 flex justify-center">
+                <a
+                    href="https://app.tinyman.org/#/swap?asset_in=0&asset_out=3730071622"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group inline-flex items-center gap-2 rounded-full bg-[#FF6B1A] px-8 py-4 text-sm font-semibold text-[#0F1423] transition-transform hover:scale-105"
+                >
+                    Comprar QUEES en Tinyman ↗
+                    <span className="transition-transform group-hover:translate-x-1">→</span>
+                </a>
             </div>
         </section>
-    )
-}
+    );
+};
 
-export default PriceWidget
+export default PriceWidget;
