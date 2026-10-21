@@ -10,29 +10,31 @@ const PriceWidget = () => {
     const [prices, setPrices] = useState<PriceData>({
         algo: { usd: 0.1145 },
         xalgo: { usd: 0.1260 },
-        quees: { usd: 0.000387, algo: 0.003377 }
+        quees: { usd: 0.000387, algo: 0.005715 }
     });
 
     const [isLoading, setIsLoading] = useState(true);
 
     const fetchPrices = async () => {
         try {
+            // Usamos la ruta del proxy que configuramos
             const [queesRes, algoRes, xalgoRes] = await Promise.all([
-                fetch('https://mainnet.analytics.tinyman.org/api/v1/assets/3730071622'),
-                fetch('https://mainnet.analytics.tinyman.org/api/v1/assets/0'),
-                fetch('https://mainnet.analytics.tinyman.org/api/v1/assets/1134696561')
+                fetch('/api/vestige/assets/3730071622'), // QUEES
+                fetch('/api/vestige/assets/0'),          // ALGO
+                fetch('/api/vestige/assets/1134696561')  // xALGO
             ]);
 
             const queesData = await queesRes.json();
             const algoData = await algoRes.json();
             const xalgoData = await xalgoRes.json();
 
-            // 🔥 LA SOLUCIÓN ESTÁ AQUÍ: Convertimos a Number() para evitar el error de toFixed
-            const algoUSD = Number(algoData.price_in_usd) || 0.1145;
-            const xalgoUSD = Number(xalgoData.price_in_usd) || 0.1260;
-            const queesUSD = Number(queesData.price_in_usd) || 0.000387;
+            // Vestige devuelve priceUSD (en dólares) y price (en ALGO)
+            const algoUSD = Number(algoData.priceUSD) || 0.1145;
+            const xalgoUSD = Number(xalgoData.priceUSD) || 0.1260;
+            const queesALGO = Number(queesData.price) || 0.005715;
 
-            const queesALGO = queesUSD / algoUSD;
+            // Calculamos el USD exacto basándonos en el precio real de ALGO
+            const queesUSD = queesALGO * algoUSD;
 
             setPrices({
                 algo: { usd: algoUSD },
