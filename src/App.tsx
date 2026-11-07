@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useWallet } from "@txnlab/use-wallet-react";
 import ConnectWallet from "./components/ConnectWallet";
 import PriceWidget from './components/PriceWidget'
+import AirdropClaim from './AirdropClaim';
+
 const TOKEN = {
   name: "QueEsAlgo",
   symbol: "QUEES",
@@ -18,7 +20,6 @@ const SOCIAL_LINKS = [
   { label: "Telegram", href: "https://t.me/algoclubgt" },
   { label: "GitHub", href: "https://github.com/miguelpalma-dev/algoclub-frontend" },
 ];
-
 
 const NAV_LINKS = [
   { label: "Tokenomics", href: "#tokenomics" },
@@ -58,6 +59,7 @@ function shortAddress(address: string) {
     ? `${address.slice(0, 6)}…${address.slice(-4)}`
     : address;
 }
+
 function Logo() {
   return (
     <a href="#" className="flex items-center gap-2.5" aria-label="QUEES Algo Club, inicio">
@@ -140,6 +142,10 @@ function Hero({ onConnectWallet, walletAddress }: WalletProps) {
           <span className="h-1.5 w-1.5 rounded-full bg-[#FF6B1A]" aria-hidden="true" />
           Live en Algorand Mainnet · ASA {TOKEN.assetId}
         </span>
+
+        {/* AQUI ESTA EL BOTON DE RECLAMO INTEGRADO */}
+        <AirdropClaim />
+
         <h1 className="text-5xl font-bold leading-[1.05] tracking-tight sm:text-6xl md:text-8xl">
           QUEES <span className="text-[#FF6B1A]">Algo</span> Club
         </h1>

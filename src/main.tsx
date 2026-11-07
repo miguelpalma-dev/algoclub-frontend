@@ -1,44 +1,19 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import App from './App'
+import App from './App.tsx'
 import './styles/App.css'
-import ErrorBoundary from './components/ErrorBoundary'
-import { WalletManager, WalletId, NetworkId } from '@txnlab/use-wallet'
-import { WalletProvider } from '@txnlab/use-wallet-react'
-import { AlgorandClient } from '@algorandfoundation/algokit-utils'
+import { WalletProvider, WalletManager, NetworkId } from '@txnlab/use-wallet-react'
+import { pera } from '@txnlab/use-wallet-pera'
 
-const algorand = AlgorandClient.mainNet()
-
-const walletManager = new WalletManager({
-  wallets: [
-    WalletId.PERA,
-    WalletId.DEFLY,
-    WalletId.EXODUS,
-    {
-      id: WalletId.WALLETCONNECT,
-      options: {
-        projectId: '8f5c6facf6ba740d97d6b02a0677b7d7',
-      },
-    },
-  ],
+const manager = new WalletManager({
+  wallets: [pera()],
   defaultNetwork: NetworkId.MAINNET,
-  networks: {
-    [NetworkId.MAINNET]: {
-      algod: {
-        baseServer: 'https://mainnet-api.algonode.cloud',
-        port: '',
-        token: '',
-      },
-    },
-  },
 })
 
-ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
+ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <ErrorBoundary>
-      <WalletProvider manager={walletManager}>
-        <App />
-      </WalletProvider>
-    </ErrorBoundary>
+    <WalletProvider manager={manager}>
+      <App />
+    </WalletProvider>
   </React.StrictMode>,
 )
